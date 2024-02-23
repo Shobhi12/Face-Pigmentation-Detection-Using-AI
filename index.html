@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Face Pigmentation Analysis</title>
+</head>
+<body>
+    <h1>Live Face Pigmentation Analysis</h1>
+    <img id="video_feed" width="640" height="480" />
+    <button onclick="stopAnalysis()">Stop Analysis</button>
+    <div id="result">
+        <p id="meanIntensity"></p>
+        <p id="productRecommendation"></p>
+        <img id="productImage" width="200" height="200" />
+    </div>
+    <script>
+        const video = document.getElementById('video_feed');
+        const meanIntensityText = document.getElementById('meanIntensity');
+        const productRecommendationText = document.getElementById('productRecommendation');
+        const productImage = document.getElementById('productImage');
+
+        function updateResult(meanIntensity, recommendation, imageSrc) {
+            meanIntensityText.innerHTML = `Mean Intensity: ${meanIntensity}`;
+            productRecommendationText.innerHTML = `Product Recommendation: ${recommendation}`;
+            productImage.src = imageSrc;
+        }
+
+        function stopAnalysis() {
+            // Stop video feed
+            video.src = '';
+
+            // Display last computed values after analysis is stopped
+            getFinalResult();
+        }
+
+        function getFinalResult() {
+            // Make an AJAX request to get the final result from the server
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', '/stop_analysis', true);
+
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    const result = JSON.parse(xhr.responseText);
+                    updateResult(result.mean_intensity, result.product_recommendation, result.product_image);
+                }
+            };
+
+            xhr.send();
+        }
+
+        // Start video feed when the page loads
+        window.onload = function() {
+            video.src = '/video_feed';
+        };
+    </script>
+</body>
+</html>
